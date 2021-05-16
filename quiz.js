@@ -33,7 +33,7 @@ async function getQuestions(amount, category, difficulty, token = null) {
         console.log(url);
         const response = await fetch(url);
         const data = await response.json();
-        return data;
+        return data["results"];
     } catch (error) {
         res.status(500).json({
             "error": error

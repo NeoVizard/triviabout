@@ -1,10 +1,12 @@
 const http = require('http');
 const express = require('express');
+const cors = require('cors');
 const fetch = require('node-fetch');
 const socketio = require('socket.io');
 const { getToken, getCategories, getQuestions } = require('./quiz')
 
 const app = express();
+app.use(cors());
 const server = http.createServer(app);
 const io = socketio(server);
 
