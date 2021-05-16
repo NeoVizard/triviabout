@@ -5,12 +5,12 @@ import Test from "./components/Test.vue";
 const routes = [
   {
     path: "/",
-    name: "Home",
+    name: "home",
     component: Home,
   },
   {
-    path: "/about",
-    name: "About",
+    path: "/game",
+    name: "game",
     component: Test,
   },
 ];

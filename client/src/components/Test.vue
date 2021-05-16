@@ -20,6 +20,7 @@
 
 <script>
 import axios from "axios";
+import io from "socket.io-client";
 
 export default {
   name: "Test",
@@ -29,6 +30,7 @@ export default {
       currentQuestionIndex: 0,
       currentQuestion: "",
       currentAnswers: [],
+      socket: io("localhost:3000"),
     };
   },
   methods: {

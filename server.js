@@ -8,7 +8,12 @@ const { getToken, getCategories, getQuestions } = require('./quiz')
 const app = express();
 app.use(cors());
 const server = http.createServer(app);
-const io = socketio(server);
+const io = socketio(server, {
+    cors: {
+        origin: "http://localhost:8080",
+        methods: ["GET", "POST"]
+    }
+});
 
 app.get('/test', async (req, res) => {
     res.send(await getCategories());
@@ -23,14 +28,17 @@ app.get('/token', async (req, res) => {
 });
 
 io.on('connection', socket => {
+    console.log("Connected");
+    console.log(socket.id);
+
     // Generate API token on joining room
-    socket.on('joinRoom', ( { roomName, username } ) => {
-        getToken().then(() => {});
+    socket.on('joinRoom', ({ roomName, username }) => {
+        getToken().then(() => { });
     });
 
     // On start game, get the questions based on the settings/params
-    socket.on('startGame', ( { questionParams /* { category, difficulty } */ } ) => {
-        getQuestions( 10, questionParams["category"], questionParams["difficulty"] ).then(() => {});
+    socket.on('startGame', ({ questionParams /* { category, difficulty } */ }) => {
+        getQuestions(10, questionParams["category"], questionParams["difficulty"]).then(() => { });
     });
 
     // Maybe store the questions locally and emit them one at a time
