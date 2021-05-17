@@ -52,7 +52,7 @@ export default {
     };
   },
   created() {
-    this.socket.emit("startGame", "medium");
+    this.socket.emit("startGame", "");
     this.socket.on("questions", (questions) => {
       console.log(questions);
       this.questions = questions;

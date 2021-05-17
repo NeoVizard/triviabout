@@ -1,7 +1,5 @@
 const fetch = require('node-fetch');
 
-
-
 async function getToken() {
     try {
         // TODO: Error Handling on the JSON response
@@ -29,7 +27,7 @@ async function getCategories() {
 
 async function getQuestions(amount, category, difficulty, token = null) {
     try {
-        const url = `https://opentdb.com/api.php?amount=${amount}${category !== '' ? '&category=' + category : ''}&difficulty=${difficulty}&type=multiple`;
+        const url = `https://opentdb.com/api.php?amount=${amount}${category !== '' ? '&category=' + category : ''}${difficulty !== '' ? "&difficulty=" + difficulty : ''}&type=multiple${token ? '&token=' + token : ''}`;
         console.log(url);
         const response = await fetch(url);
         const data = await response.json();

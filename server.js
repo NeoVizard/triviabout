@@ -2,7 +2,8 @@ const http = require('http');
 const express = require('express');
 const cors = require('cors');
 const socketio = require('socket.io');
-const { getToken, getCategories, getQuestions } = require('./quiz')
+const { getToken, getCategories, getQuestions } = require('./quiz');
+const { createRoom, deleteRoom, addUser, getUsers, deleteUser } = require('./rooms');
 
 let users = [];
 
@@ -14,18 +15,6 @@ const io = socketio(server, {
         origin: "http://localhost:8080",
         methods: ["GET", "POST"]
     }
-});
-
-app.get('/test', async (req, res) => {
-    res.send(await getCategories());
-});
-
-app.get('/test2', async (req, res) => {
-    res.send(await getQuestions(5, '', 'medium'));
-});
-
-app.get('/token', async (req, res) => {
-    res.send(await getToken());
 });
 
 io.on('connection', socket => {
