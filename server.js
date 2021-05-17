@@ -1,9 +1,10 @@
 const http = require('http');
 const express = require('express');
 const cors = require('cors');
-const fetch = require('node-fetch');
 const socketio = require('socket.io');
 const { getToken, getCategories, getQuestions } = require('./quiz')
+
+let users = [];
 
 const app = express();
 app.use(cors());
@@ -28,8 +29,7 @@ app.get('/token', async (req, res) => {
 });
 
 io.on('connection', socket => {
-    console.log("Connected");
-    console.log(socket.id);
+    io.emit('users', users);
 
     // Generate API token on joining room
     socket.on('joinRoom', ({ roomName, username }) => {
@@ -37,8 +37,15 @@ io.on('connection', socket => {
     });
 
     // On start game, get the questions based on the settings/params
-    socket.on('startGame', ({ questionParams /* { category, difficulty } */ }) => {
-        getQuestions(10, questionParams["category"], questionParams["difficulty"]).then(() => { });
+    socket.on('startGame', (difficulty) => {
+        getQuestions(10, '', difficulty).then((res) => {
+            res.forEach(e => {
+                e.answers = [];
+                e.answers.push(e.correct_answer, ...e.incorrect_answers);   // Array containing all answers
+                e.answers.sort(() => (Math.random() > 0.5)? 1: -1);     // Randomize order
+            });
+            socket.emit('questions', res);
+         });
     });
 
     // Maybe store the questions locally and emit them one at a time
