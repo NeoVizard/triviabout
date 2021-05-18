@@ -21,8 +21,10 @@ io.on('connection', socket => {
     io.emit('users', users);
 
     // Generate API token on joining room
-    socket.on('joinRoom', ({ roomName, username }) => {
-        getToken().then(() => { });
+    socket.on('joinRoom', ({ roomName, userName }) => {
+        console.log(roomName);
+        console.log(userName);
+        // getToken().then(() => { });
     });
 
     // On start game, get the questions based on the settings/params
@@ -31,10 +33,10 @@ io.on('connection', socket => {
             res.forEach(e => {
                 e.answers = [];
                 e.answers.push(e.correct_answer, ...e.incorrect_answers);   // Array containing all answers
-                e.answers.sort(() => (Math.random() > 0.5)? 1: -1);     // Randomize order
+                e.answers.sort(() => (Math.random() > 0.5) ? 1 : -1);     // Randomize order
             });
             socket.emit('questions', res);
-         });
+        });
     });
 
     // Maybe store the questions locally and emit them one at a time

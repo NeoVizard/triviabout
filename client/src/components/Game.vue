@@ -40,6 +40,7 @@ export default {
   data() {
     return {
       users: [],
+      userName: "",
       questions: null,
       currentQuestionIndex: 0,
       currentQuestion: "",
@@ -52,6 +53,15 @@ export default {
     };
   },
   created() {
+    this.userName = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("username="))
+      .split("=")[1]; //document.cookie.substr(9);
+    let roomName = this.$route.params.roomName;
+    this.socket.emit("joinRoom", {
+      roomName: roomName,
+      userName: this.userName,
+    });
     this.socket.emit("startGame", "");
     this.socket.on("questions", (questions) => {
       console.log(questions);

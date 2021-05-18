@@ -13,6 +13,11 @@ const routes = [
     name: "game",
     component: Game,
   },
+  {
+    path: "/room/:roomName",
+    name: "room",
+    component: Game
+  }
 ];
 
 const router = createRouter({
