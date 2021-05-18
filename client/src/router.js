@@ -1,6 +1,7 @@
 import { createWebHistory, createRouter } from "vue-router";
 import Home from "./components/Home.vue";
 import Game from "./components/Game.vue";
+import Room from "./components/Room.vue";
 
 const routes = [
   {
@@ -16,7 +17,7 @@ const routes = [
   {
     path: "/room/:roomName",
     name: "room",
-    component: Game
+    component: Room
   }
 ];
 

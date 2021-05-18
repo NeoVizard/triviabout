@@ -3,7 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const socketio = require('socket.io');
 const { getToken, getCategories, getQuestions } = require('./quiz');
-const { createRoom, deleteRoom, addUser, getUsers, deleteUser } = require('./rooms');
+const { createRoom, joinRoom, deleteRoom, addUser, getUsers, deleteUser, refreshRoomQuestions, getRoomQuestions } = require('./rooms');
 
 let users = [];
 
@@ -21,27 +21,40 @@ io.on('connection', socket => {
     io.emit('users', users);
 
     // Generate API token on joining room
-    socket.on('joinRoom', ({ roomName, userName }) => {
+    socket.on('joinRoom', async ({ roomName, userName }) => {
         console.log(roomName);
         console.log(userName);
+        await joinRoom(roomName, userName, socket.id);
+        socket.join(roomName);
+        socket.emit('joinedRoom');
+        io.in(roomName).emit('users', getUsers(roomName));
         // getToken().then(() => { });
     });
 
     // On start game, get the questions based on the settings/params
-    socket.on('startGame', (difficulty) => {
-        getQuestions(10, '', difficulty).then((res) => {
-            res.forEach(e => {
-                e.answers = [];
-                e.answers.push(e.correct_answer, ...e.incorrect_answers);   // Array containing all answers
-                e.answers.sort(() => (Math.random() > 0.5) ? 1 : -1);     // Randomize order
-            });
-            socket.emit('questions', res);
-        });
+    socket.on('startGame', async (roomName) => {
+        await refreshRoomQuestions(roomName, 10);
+        const questions = getRoomQuestions(roomName);
+        io.in(roomName).emit('questions', res);
     });
 
     // Maybe store the questions locally and emit them one at a time
     // OR store the whole JSON from the API and send all Q&A, check back with socket only for answers
     // Scores after every question makes it feel more like a game and less like a test.
+
+    
+    socket.on('disconnecting', () => {
+        socket.rooms.delete(socket.id);
+        const roomName = socket.rooms.keys().next().value;
+        deleteUser(roomName, socket.id);
+        const remainingUsers = getUsers(roomName);
+        if (remainingUsers.length !== 0) {
+            io.in(roomName).emit('users', remainingUsers);
+        }
+        else {
+            deleteRoom(roomName);
+        }
+    });
 });
 
 server.listen(3000, () => {

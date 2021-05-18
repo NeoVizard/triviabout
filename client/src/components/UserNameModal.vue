@@ -20,8 +20,6 @@
   </transition>
 </template>
 
-
-
 <script>
 export default {
   name: "UserNameModal",

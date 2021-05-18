@@ -3,8 +3,7 @@
     <UserNameModal v-if="showModal" @close="showModal = false" />
     <h1>HELLO</h1>
     <img src="../assets/triviabout.png" alt="TriviaBout" />
-    <router-link to="/game" tag="button">START GAME</router-link>
-    <button @click="gotoRoom()">GOTO ROOM</button>
+    <button @click="makeRoom()">PLAY</button>
   </div>
 </template>
 
@@ -25,8 +24,17 @@ export default {
       undefined;
   },
   methods: {
-    gotoRoom() {
-      this.$router.push("/room/123");
+    makeRoom() {
+      var result = [];
+      var characters =
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+      var charactersLength = characters.length;
+      for (var i = 0; i < 10; i++) {
+        result.push(
+          characters.charAt(Math.floor(Math.random() * charactersLength))
+        );
+      }
+      this.$router.push(`/room/${result.join('')}`);
     },
   },
 };

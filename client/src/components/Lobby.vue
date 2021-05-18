@@ -1,9 +1,9 @@
 <template>
   <div>
-    <span v-html="users"></span>
     <ul>
-      <li v-for="u in users" :key="u" v-html="u"></li>
+      <li v-for="u in users" :key="u" v-html="u.name"></li>
     </ul>
+    <button @click="$emit('start-game')">START</button>
   </div>
 </template>
 

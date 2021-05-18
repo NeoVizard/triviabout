@@ -2,22 +2,21 @@
   <div class="container">
     <h1>Welcome</h1>
     <hr />
-    <div v-if="questions">
-      <Lobby v-if="gameState === -1" :users="users" />
-      <question
-        v-if="gameState === 0"
-        :question="currentQuestion"
-        :answers="currentAnswers"
-        @submit-answer="submitAnswer"
-      />
-      <Answer
-        v-if="gameState === 1"
-        :userAnswer="userAnswer"
-        :correctAnswer="correctAnswer"
-        @next-question="nextQuestion"
-      />
-      <Scores v-if="gameState === 2" :score="score" />
-    </div>
+    <Loader v-if="gameState === -2" />
+    <Lobby v-if="gameState === -1" :users="users" @start-game="startGame" />
+    <question
+      v-if="gameState === 0"
+      :question="currentQuestion"
+      :answers="currentAnswers"
+      @submit-answer="submitAnswer"
+    />
+    <Answer
+      v-if="gameState === 1"
+      :userAnswer="userAnswer"
+      :correctAnswer="correctAnswer"
+      @next-question="nextQuestion"
+    />
+    <Scores v-if="gameState === 2" :score="score" />
   </div>
 </template>
 
@@ -28,6 +27,7 @@ import Question from "./Question.vue";
 import Answer from "./Answer.vue";
 import Scores from "./Scores.vue";
 import Lobby from "./Lobby.vue";
+import Loader from "./Loader.vue";
 
 export default {
   name: "Game",
@@ -36,11 +36,13 @@ export default {
     Answer,
     Scores,
     Lobby,
+    Loader,
   },
   data() {
     return {
       users: [],
       userName: "",
+      roomName: "",
       questions: null,
       currentQuestionIndex: 0,
       currentQuestion: "",
@@ -48,7 +50,7 @@ export default {
       correctAnswer: "",
       userAnswer: "",
       socket: io("localhost:3000"),
-      gameState: -1,
+      gameState: -2,
       score: 0,
     };
   },
@@ -56,15 +58,18 @@ export default {
     this.userName = document.cookie
       .split("; ")
       .find((row) => row.startsWith("username="))
-      .split("=")[1]; //document.cookie.substr(9);
-    let roomName = this.$route.params.roomName;
+      .split("=")[1];
+    this.roomName = this.$route.params.roomName;
     this.socket.emit("joinRoom", {
-      roomName: roomName,
+      roomName: this.roomName,
       userName: this.userName,
     });
-    this.socket.emit("startGame", "");
+    this.socket.on("joinedRoom", () => {
+      this.gameState = -1;
+    });
     this.socket.on("questions", (questions) => {
-      console.log(questions);
+      // console.log(questions);
+      this.gameState = 0;
       this.questions = questions;
       this.currentQuestionIndex = 0;
       this.currentQuestion = this.questions[0].question;
@@ -76,7 +81,6 @@ export default {
   },
   methods: {
     async getQuestions() {
-      console.log("TEST");
       try {
         const res = await axios.get(`http://localhost:3000/test2`);
         this.questions = res.data;
@@ -86,6 +90,10 @@ export default {
       } catch (error) {
         console.log(error);
       }
+    },
+    startGame() {
+      this.socket.emit("startGame", this.roomName);
+      this.gameState = -2;
     },
     nextQuestion() {
       this.currentQuestionIndex++;
