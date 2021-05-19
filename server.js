@@ -3,7 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const socketio = require('socket.io');
 const { getToken, getCategories, getQuestions } = require('./quiz');
-const { createRoom, joinRoom, deleteRoom, addUser, getUsers, deleteUser, refreshRoomQuestions, getRoomQuestions } = require('./rooms');
+const { createRoom, joinRoom, deleteRoom, addUser, getUsers, deleteUser, refreshRoomQuestions, getRoomQuestions, addAnswer, clearAnswers } = require('./rooms');
 
 let users = [];
 
@@ -28,14 +28,27 @@ io.on('connection', socket => {
         socket.join(roomName);
         socket.emit('joinedRoom');
         io.in(roomName).emit('users', getUsers(roomName));
-        // getToken().then(() => { });
     });
 
     // On start game, get the questions based on the settings/params
     socket.on('startGame', async (roomName) => {
+        io.in(roomName).emit('gettingQuestions');
         await refreshRoomQuestions(roomName, 10);
         const questions = getRoomQuestions(roomName);
         io.in(roomName).emit('questions', res);
+    });
+
+    // Get answer and set to user
+    socket.on('answer', (answer, roomName) => {
+        addAnswer(roomName, socket.id, answer);
+        if (getUsers(roomName).filter( u => u.answer === null).length === 0) {
+            io.in(roomName).emit('answers', getUsers(roomName));
+        }
+    });
+
+    socket.on('nextQuestion', (roomName) => {
+        clearAnswers(roomName);
+        io.in(roomName).emit('nextQuestion');
     });
 
     // Maybe store the questions locally and emit them one at a time

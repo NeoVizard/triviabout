@@ -14,6 +14,7 @@
       v-if="gameState === 1"
       :userAnswer="userAnswer"
       :correctAnswer="correctAnswer"
+      :users="users"
       @next-question="nextQuestion"
     />
     <Scores v-if="gameState === 2" :score="score" />
@@ -67,6 +68,9 @@ export default {
     this.socket.on("joinedRoom", () => {
       this.gameState = -1;
     });
+    this.socket.on("gettingQuestions", () => {
+      this.gameState = -2;
+    });
     this.socket.on("questions", (questions) => {
       // console.log(questions);
       this.gameState = 0;
@@ -77,6 +81,22 @@ export default {
     });
     this.socket.on("users", (users) => {
       this.users = users;
+    });
+    this.socket.on("answers", (users) => {
+      this.users = users;
+      this.gameState = 1;
+    });
+    this.socket.on("nextQuestion", () => {
+      this.currentQuestionIndex++;
+      if (this.currentQuestionIndex < this.questions.length) {
+        this.currentQuestion = this.questions[
+          this.currentQuestionIndex
+        ].question;
+        this.currentAnswers = this.questions[this.currentQuestionIndex].answers;
+        this.gameState = 0;
+      } else {
+        this.gameState = 2;
+      }
     });
   },
   methods: {
@@ -93,31 +113,25 @@ export default {
     },
     startGame() {
       this.socket.emit("startGame", this.roomName);
-      this.gameState = -2;
     },
     nextQuestion() {
-      this.currentQuestionIndex++;
-      if (this.currentQuestionIndex < this.questions.length) {
-        this.currentQuestion = this.questions[
-          this.currentQuestionIndex
-        ].question;
-        this.currentAnswers = this.questions[this.currentQuestionIndex].answers;
-        this.gameState = 0;
-      } else {
-        this.gameState = 2;
-      }
+      this.socket.emit("nextQuestion", this.roomName);
     },
     submitAnswer(a) {
       this.correctAnswer = this.questions[
         this.currentQuestionIndex
       ].correct_answer;
       this.userAnswer = a;
-      this.gameState = 1;
-      if (this.correctAnswer == a) {
-        this.score += 100;
-      } else {
-        this.score -= 50;
-      }
+
+      this.gameState = -2;
+
+      this.socket.emit("answer", a, this.roomName);
+
+      // if (this.correctAnswer == a) {
+      //   this.score += 100;
+      // } else {
+      //   this.score -= 50;
+      // }
     },
   },
 };
