@@ -6,9 +6,10 @@
       <li v-for="u in users" :key="u">
           <span v-html="u.name"></span>'s Answer:
           <span v-html="u.answer"></span>
+          <p> Score: <span v-html="u.score"></span></p>
       </li>
     </ul>
-    <button @click="$emit('next-question')">Next</button>
+    <button v-if="isLeader" @click="$emit('next-question')">Next</button>
   </div>
 </template>
 
@@ -19,6 +20,7 @@ export default {
     correctAnswer: String,
     userAnswer: String,
     users: Array,
+    isLeader: Boolean
   },
   emits: ["next-question"],
 };

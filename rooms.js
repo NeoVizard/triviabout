@@ -43,13 +43,15 @@ function getRoomQuestions(roomName) {
 
 // Add a new user to a room
 function addUser(roomName, id, userName, isLeader = false) {
-    user = { "id": id, "name": userName, "isLeader": isLeader, "answer": null };
+    user = { "id": id, "name": userName, "isLeader": isLeader, "answer": null, "score": 0 };
     rooms[roomName].users.push(user);
 }
 
 // Add an answer to a user
-function addAnswer(roomName, id, answer) {
-    rooms[roomName].users.find(u => u.id === id).answer = answer;
+function addAnswer(roomName, id, answer, score) {
+    user = rooms[roomName].users.find(u => u.id === id);
+    user.answer = answer;
+    user.score = score;
 }
 
 // Set all the answer values of all users in a room

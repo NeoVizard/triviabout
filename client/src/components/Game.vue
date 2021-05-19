@@ -3,8 +3,13 @@
     <h1>Welcome</h1>
     <hr />
     <Loader v-if="gameState === -2" />
-    <Lobby v-if="gameState === -1" :users="users" @start-game="startGame" />
-    <question
+    <Lobby
+      v-if="gameState === -1"
+      :users="users"
+      :isLeader="isLeader"
+      @start-game="startGame"
+    />
+    <Question
       v-if="gameState === 0"
       :question="currentQuestion"
       :answers="currentAnswers"
@@ -15,9 +20,15 @@
       :userAnswer="userAnswer"
       :correctAnswer="correctAnswer"
       :users="users"
+      :isLeader="isLeader"
       @next-question="nextQuestion"
     />
-    <Scores v-if="gameState === 2" :score="score" />
+    <Scores
+      v-if="gameState === 2"
+      :score="score"
+      :isLeader="isLeader"
+      @play-again="startGame()"
+    />
   </div>
 </template>
 
@@ -43,6 +54,7 @@ export default {
     return {
       users: [],
       userName: "",
+      isLeader: false,
       roomName: "",
       questions: null,
       currentQuestionIndex: 0,
@@ -61,18 +73,11 @@ export default {
       .find((row) => row.startsWith("username="))
       .split("=")[1];
     this.roomName = this.$route.params.roomName;
-    this.socket.emit("joinRoom", {
-      roomName: this.roomName,
-      userName: this.userName,
-    });
-    this.socket.on("joinedRoom", () => {
-      this.gameState = -1;
-    });
-    this.socket.on("gettingQuestions", () => {
-      this.gameState = -2;
-    });
+    this.socket.emit("joinRoom", this.roomName, this.userName);
+    this.socket.on("joinedRoom", () => (this.gameState = -1));
+    this.socket.on("gettingQuestions", () => (this.gameState = -2));
     this.socket.on("questions", (questions) => {
-      // console.log(questions);
+      console.log(questions);
       this.gameState = 0;
       this.questions = questions;
       this.currentQuestionIndex = 0;
@@ -81,6 +86,10 @@ export default {
     });
     this.socket.on("users", (users) => {
       this.users = users;
+      console.log(users);
+      console.log(this.userName);
+      console.log(this.socket.id);
+      this.isLeader = users.find((u) => u.id === this.socket.id).isLeader;
     });
     this.socket.on("answers", (users) => {
       this.users = users;
@@ -125,13 +134,13 @@ export default {
 
       this.gameState = -2;
 
-      this.socket.emit("answer", a, this.roomName);
+      if (this.correctAnswer == a) {
+        this.score += 100;
+      } else {
+        this.score -= 50;
+      }
 
-      // if (this.correctAnswer == a) {
-      //   this.score += 100;
-      // } else {
-      //   this.score -= 50;
-      // }
+      this.socket.emit("answer", a, this.score, this.roomName);
     },
   },
 };

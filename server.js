@@ -18,10 +18,8 @@ const io = socketio(server, {
 });
 
 io.on('connection', socket => {
-    io.emit('users', users);
-
     // Generate API token on joining room
-    socket.on('joinRoom', async ({ roomName, userName }) => {
+    socket.on('joinRoom', async (roomName, userName) => {
         console.log(roomName);
         console.log(userName);
         await joinRoom(roomName, userName, socket.id);
@@ -39,8 +37,8 @@ io.on('connection', socket => {
     });
 
     // Get answer and set to user
-    socket.on('answer', (answer, roomName) => {
-        addAnswer(roomName, socket.id, answer);
+    socket.on('answer', (answer, score, roomName) => {
+        addAnswer(roomName, socket.id, answer, score);
         if (getUsers(roomName).filter( u => u.answer === null).length === 0) {
             io.in(roomName).emit('answers', getUsers(roomName));
         }

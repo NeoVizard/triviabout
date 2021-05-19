@@ -1,9 +1,9 @@
 <template>
   <div>
     <ul>
-      <li v-for="u in users" :key="u" v-html="u.name"></li>
+      <li v-for="u in users" :key="u"><span v-html="u.name"></span> <span v-if="u.isLeader">👑</span></li>
     </ul>
-    <button @click="$emit('start-game')">START</button>
+    <button v-if="isLeader" @click="$emit('start-game')">START</button>
   </div>
 </template>
 
@@ -12,6 +12,7 @@ export default {
   name: "Lobby",
   props: {
     users: Array,
+    isLeader: Boolean
   },
 };
 </script>
