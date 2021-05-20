@@ -1,9 +1,11 @@
 <template>
-  <div>
+  <div class="container">
     <h1 v-html="question"></h1>
-    <button v-for="a in answers" :key="a" @click="$emit('submit-answer', a)">
-      <span v-html="a"></span>
-    </button>
+    <div class="options">
+      <button v-for="a in answers" :key="a" @click="$emit('submit-answer', a)">
+        <span v-html="a"></span>
+      </button>
+    </div>
   </div>
 </template>
 
@@ -18,5 +20,11 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
+.options {
+  display: grid;
+  grid-template: 1fr 1fr / 1fr 1fr;
+  width: 70%;
+  place-items: center;
+}
 </style>

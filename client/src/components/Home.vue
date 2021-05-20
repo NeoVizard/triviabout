@@ -1,7 +1,6 @@
 <template>
   <div class="container">
     <UserNameModal v-if="showModal" @close="showModal = false" />
-    <h1>HELLO</h1>
     <img src="../assets/triviabout.png" alt="TriviaBout" />
     <button @click="makeRoom()">PLAY</button>
   </div>
@@ -44,9 +43,28 @@ export default {
 .container {
   display: grid;
   place-items: center;
+  background-color: white;
+  margin: 0px 10px;
+  height: 200px;
+  border-radius: 20px;
 }
 
 img {
   width: 50%;
+}
+
+button {
+  background-color: #3f48cc;
+  color: white;
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+  font-size: 20px;
+  width: 200px;
+  height: 60px;
+  border: 0px;
+  border-radius: 10px;
+}
+
+button:hover {
+  background-color: #3f48cce5;
 }
 </style>

@@ -17,5 +17,16 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
+ul {
+  background-color: #3f48cc;
+  color: white;
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+  font-size: 20px;
+  list-style: none;
+  padding: 10px 25px;
+  text-align: left;
+  border-radius: 10px;
+  width: 300px;
+}
 </style>
