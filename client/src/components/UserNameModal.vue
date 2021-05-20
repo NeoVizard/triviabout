@@ -30,7 +30,7 @@ export default {
   },
   methods: {
     setUserName() {
-      document.cookie = `username=${this.userName}`;
+      document.cookie = `username=${this.userName}; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
       this.$emit("close");
     },
   },

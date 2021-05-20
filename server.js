@@ -3,7 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const socketio = require('socket.io');
 const { getToken, getCategories, getQuestions } = require('./quiz');
-const { createRoom, joinRoom, deleteRoom, addUser, getUsers, deleteUser, refreshRoomQuestions, getRoomQuestions, addAnswer, clearAnswers } = require('./rooms');
+const { createRoom, joinRoom, deleteRoom, addUser, getUsers, deleteUser, refreshRoomQuestions, getRoomQuestions, addAnswer, clearAnswers, leaveRoom, setRoomState, getRoomState } = require('./rooms');
 
 let users = [];
 
@@ -20,12 +20,11 @@ const io = socketio(server, {
 io.on('connection', socket => {
     // Generate API token on joining room
     socket.on('joinRoom', async (roomName, userName) => {
-        console.log(roomName);
-        console.log(userName);
         await joinRoom(roomName, userName, socket.id);
         socket.join(roomName);
-        socket.emit('joinedRoom');
+        socket.emit('joinedRoom', getRoomState(roomName));
         io.in(roomName).emit('users', getUsers(roomName));
+        console.log(`User '${userName}' joined room '${roomName}'`);
     });
 
     // On start game, get the questions based on the settings/params
@@ -33,13 +32,14 @@ io.on('connection', socket => {
         io.in(roomName).emit('gettingQuestions');
         await refreshRoomQuestions(roomName, 10);
         const questions = getRoomQuestions(roomName);
+        setRoomState(roomName, 1);
         io.in(roomName).emit('questions', res);
     });
 
     // Get answer and set to user
     socket.on('answer', (answer, score, roomName) => {
         addAnswer(roomName, socket.id, answer, score);
-        if (getUsers(roomName).filter( u => u.answer === null).length === 0) {
+        if (getUsers(roomName).filter( u => u.answer === null && u.state === 1).length === 0) {
             io.in(roomName).emit('answers', getUsers(roomName));
         }
     });
@@ -53,17 +53,17 @@ io.on('connection', socket => {
     // OR store the whole JSON from the API and send all Q&A, check back with socket only for answers
     // Scores after every question makes it feel more like a game and less like a test.
 
+    socket.on('playAgain', (roomName) => {
+        setRoomState(roomName, 0);
+        io.in(roomName).emit('playAgain');
+    });
     
     socket.on('disconnecting', () => {
         socket.rooms.delete(socket.id);
         const roomName = socket.rooms.keys().next().value;
-        deleteUser(roomName, socket.id);
-        const remainingUsers = getUsers(roomName);
+        const remainingUsers = leaveRoom(roomName, socket.id);
         if (remainingUsers.length !== 0) {
             io.in(roomName).emit('users', remainingUsers);
-        }
-        else {
-            deleteRoom(roomName);
         }
     });
 });

@@ -2,7 +2,7 @@
   <div class="container">
     <h1>Welcome</h1>
     <hr />
-    <Loader v-if="gameState === -2" />
+    <Loader v-if="gameState === -2" :message="loadMessage" />
     <Lobby
       v-if="gameState === -1"
       :users="users"
@@ -27,7 +27,7 @@
       v-if="gameState === 2"
       :score="score"
       :isLeader="isLeader"
-      @play-again="startGame()"
+      @play-again="playAgain()"
     />
   </div>
 </template>
@@ -55,6 +55,7 @@ export default {
       users: [],
       userName: "",
       isLeader: false,
+      isWaiting: false,
       roomName: "",
       questions: null,
       currentQuestionIndex: 0,
@@ -65,6 +66,7 @@ export default {
       socket: io("localhost:3000"),
       gameState: -2,
       score: 0,
+      loadMessage: "",
     };
   },
   created() {
@@ -74,11 +76,29 @@ export default {
       .split("=")[1];
     this.roomName = this.$route.params.roomName;
     this.socket.emit("joinRoom", this.roomName, this.userName);
-    this.socket.on("joinedRoom", () => (this.gameState = -1));
-    this.socket.on("gettingQuestions", () => (this.gameState = -2));
+    this.socket.on("joinedRoom", (roomState) => {
+      console.log(roomState);
+      if (roomState === 0)
+      {
+        if (!this.isWaiting) this.gameState = -1;
+      }
+      else {
+        if (!this.isWaiting) this.gameState = -2;
+        this.loadMessage = "Game in progress";
+        this.isWaiting = true;
+      }
+    });
+    this.socket.on('playAgain', ()=> {
+      this.isWaiting = false;
+      this.gameState = -1;
+    });
+    this.socket.on("gettingQuestions", () => {
+      this.loadMessage = "Getting questions";
+      if (!this.isWaiting) this.gameState = -2;
+    });
     this.socket.on("questions", (questions) => {
       console.log(questions);
-      this.gameState = 0;
+      if (!this.isWaiting) this.gameState = 0;
       this.questions = questions;
       this.currentQuestionIndex = 0;
       this.currentQuestion = this.questions[0].question;
@@ -93,7 +113,7 @@ export default {
     });
     this.socket.on("answers", (users) => {
       this.users = users;
-      this.gameState = 1;
+      if (!this.isWaiting) this.gameState = 1;
     });
     this.socket.on("nextQuestion", () => {
       this.currentQuestionIndex++;
@@ -102,9 +122,9 @@ export default {
           this.currentQuestionIndex
         ].question;
         this.currentAnswers = this.questions[this.currentQuestionIndex].answers;
-        this.gameState = 0;
+        if (!this.isWaiting) this.gameState = 0;
       } else {
-        this.gameState = 2;
+        if (!this.isWaiting) this.gameState = 2;
       }
     });
   },
@@ -132,7 +152,8 @@ export default {
       ].correct_answer;
       this.userAnswer = a;
 
-      this.gameState = -2;
+      if (!this.isWaiting) this.gameState = -2;
+      this.loadMessage = "Waiting for others";
 
       if (this.correctAnswer == a) {
         this.score += 100;
@@ -142,6 +163,9 @@ export default {
 
       this.socket.emit("answer", a, this.score, this.roomName);
     },
+    playAgain() {
+      this.socket.emit('playAgain', this.roomName);
+    }
   },
 };
 </script>

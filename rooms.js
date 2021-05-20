@@ -5,7 +5,7 @@ const rooms = {}
 // Create a room and set its defaults and a new room token
 async function createRoom(roomName) {
     token = await getToken();
-    room = { "name": roomName, "token": token, "users": [], "questions": [], "answers": [] };
+    room = { "name": roomName, "token": token, "users": [], "questions": [], "answers": [], "state": 0 };
     rooms[roomName] = room;
 }
 
@@ -20,9 +20,32 @@ async function joinRoom(roomName, userName, id) {
     }
 }
 
+// Leave a room and return the remaining users, delete room if empty, change leader if needed
+function leaveRoom(roomName, id) {
+    let user = deleteUser(roomName, id);
+    let users = getUsers(roomName);
+    console.log(`User '${user.name}' leaving room '${roomName}'`);
+    if (users.length === 0) {
+        deleteRoom(roomName);
+        console.log(`Room '${roomName}' deleted`);
+    } else if (user.isLeader) {
+        users[0].isLeader = true;
+    }
+    return users;
+}
+
+function setRoomState(roomName, state) {
+    rooms[roomName].state = state;
+    getUsers(roomName).forEach(u => (u.state = state));
+}
+
+function getRoomState(roomName) {
+    return rooms[roomName].state;
+}
+
 // Delete a room
 function deleteRoom(roomName) {
-    delete (room[roomName]);
+    delete (rooms[roomName]);
 }
 
 // Refreshes the array of questions for a room
@@ -43,7 +66,7 @@ function getRoomQuestions(roomName) {
 
 // Add a new user to a room
 function addUser(roomName, id, userName, isLeader = false) {
-    user = { "id": id, "name": userName, "isLeader": isLeader, "answer": null, "score": 0 };
+    user = { "id": id, "name": userName, "isLeader": isLeader, "state": 0, "answer": null, "score": 0 };
     rooms[roomName].users.push(user);
 }
 
@@ -66,10 +89,11 @@ function getUsers(roomName) {
     return rooms[roomName].users;
 }
 
-// Refactor to leaveRoom
-// Delete user from room
+// Delete user from room and returns that user
 function deleteUser(roomName, id) {
-    rooms[roomName].users = rooms[roomName].users.filter(u => u.id !== id);
+    // rooms[roomName].users = rooms[roomName].users.filter(u => u.id !== id);
+    let users = rooms[roomName].users;
+    return users.splice(users.findIndex(u => u.id === id), 1)[0];
 }
 
-module.exports = { createRoom, joinRoom, deleteRoom, refreshRoomQuestions, getRoomQuestions, addUser, addAnswer, clearAnswers, getUsers, deleteUser };
+module.exports = { createRoom, joinRoom, leaveRoom, setRoomState, getRoomState, deleteRoom, refreshRoomQuestions, getRoomQuestions, addUser, addAnswer, clearAnswers, getUsers, deleteUser };

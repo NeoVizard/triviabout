@@ -3,7 +3,7 @@
     <h3>Correct Answer: <span v-html="correctAnswer"></span></h3>
     <h5>Your Answer: <span v-html="userAnswer"></span></h5>
     <ul>
-      <li v-for="u in users" :key="u">
+      <li v-for="u in users.filter(u => u.state === 1)" :key="u">
           <span v-html="u.name"></span>'s Answer:
           <span v-html="u.answer"></span>
           <p> Score: <span v-html="u.score"></span></p>
