@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="fill-box">
     <Loader v-if="gameState === -2" :message="loadMessage" />
     <Lobby
       v-if="gameState === -1"
@@ -170,12 +170,4 @@ export default {
 </script>
 
 <style scoped>
-.container {
-  display: grid;
-  place-items: center;
-  background-color: white;
-  margin: 0px 10px;
-  min-height: 200px;
-  border-radius: 20px;
-}
 </style>

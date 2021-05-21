@@ -23,15 +23,8 @@ export default {
 </script>
 
 <style>
-ul {
-  background-color: #3f48cc;
-  color: white;
-  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
-  font-size: 20px;
-  list-style: none;
-  padding: 10px 25px;
-  text-align: left;
-  border-radius: 10px;
-  width: 300px;
+li:last-child {
+  border-bottom-left-radius: 1em;
+  border-bottom-right-radius: 1em;
 }
 </style>

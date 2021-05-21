@@ -56,29 +56,43 @@ export default {
 }
 
 .modal-container {
-  width: 300px;
-  margin: 0px auto;
-  padding: 20px 30px;
+  width: 20em;
+  margin: 0 auto;
+  padding: 2em 2em 1em 2em;
   background-color: #fff;
-  border-radius: 2px;
+  border-radius: 2em;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
   transition: all 0.3s ease;
-  font-family: Helvetica, Arial, sans-serif;
 }
 
-.modal-header h3 {
+.modal-header {
   margin-top: 0;
-  color: #42b983;
+  text-align: left;
+  font-size: 1.5rem;
 }
 
 .modal-body {
-  margin: 20px 0;
+  margin-top: 1em;
 }
 
-.modal-default-button {
-  display: block;
-  margin-top: 1rem;
+input {
+  width: 100%;
+  font-size: 1.5rem;
 }
+
+button {
+  font-size: 1rem;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* .modal-default-button {
+  display: block;
+  margin-top: 1em;
+} */
 
 /*
  * The following styles are auto-applied to elements with

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="container">
     <UserNameModal v-if="showModal" @close="showModal = false" />
     <Game v-if="!showModal" />
   </div>
