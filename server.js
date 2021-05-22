@@ -9,6 +9,8 @@ let users = [];
 
 const app = express();
 app.use(cors());
+app.use(express.static(__dirname + '/client/dist'));
+app.get(/.*/, (req, res) => res.sendFile(__dirname + '/client/dist/index.html'));
 const server = http.createServer(app);
 const io = socketio(server, {
     cors: {

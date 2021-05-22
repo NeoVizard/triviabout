@@ -90,6 +90,7 @@ export default {
     this.socket.on('playAgain', ()=> {
       this.isWaiting = false;
       this.gameState = -1;
+      this.score = 0;
     });
     this.socket.on("gettingQuestions", () => {
       this.loadMessage = "Getting questions";

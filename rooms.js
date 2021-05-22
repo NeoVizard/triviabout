@@ -37,6 +37,9 @@ function leaveRoom(roomName, id) {
 function setRoomState(roomName, state) {
     rooms[roomName].state = state;
     getUsers(roomName).forEach(u => (u.state = state));
+    if (state === 0) {
+        getUsers(roomName).forEach(u => (u.score = 0));
+    }
 }
 
 function getRoomState(roomName) {

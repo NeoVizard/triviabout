@@ -7,10 +7,11 @@
 
           <div class="modal-body">
             <input type="text" v-model="userName" />
+            <span v-if="error !== ''" v-html="error"></span>
           </div>
 
           <div class="modal-footer">
-            <button class="modal-default-button" @click="setUserName()">
+            <button @click="setUserName()">
               OK
             </button>
           </div>
@@ -26,12 +27,19 @@ export default {
   data() {
     return {
       userName: "",
+      error: ""
     };
   },
   methods: {
     setUserName() {
+      let userName = this.userName;
+      if(userName !== "") {
       document.cookie = `username=${this.userName}; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
       this.$emit("close");
+      }
+      else {
+        this.error = "Please enter name";
+      }
     },
   },
 };
@@ -63,6 +71,8 @@ export default {
   border-radius: 2em;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
   transition: all 0.3s ease;
+  background: #2029b3;
+  color: white;
 }
 
 .modal-header {
@@ -78,6 +88,12 @@ export default {
 input {
   width: 100%;
   font-size: 1.5rem;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
 }
 
 button {
