@@ -62,7 +62,7 @@ export default {
       currentAnswers: [],
       correctAnswer: "",
       userAnswer: "",
-      socket: io("localhost:3000"),
+      socket: io(), //io("localhost:3000"),
       gameState: -2,
       score: 0,
       loadMessage: "",
