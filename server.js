@@ -41,7 +41,7 @@ io.on('connection', socket => {
     // Get answer and set to user
     socket.on('answer', (answer, score, roomName) => {
         addAnswer(roomName, socket.id, answer, score);
-        if (getUsers(roomName).filter( u => u.answer === null && u.state === 1).length === 0) {
+        if (getUsers(roomName).filter(u => u.answer === null && u.state === 1).length === 0) {
             io.in(roomName).emit('answers', getUsers(roomName));
         }
     });
@@ -59,13 +59,18 @@ io.on('connection', socket => {
         setRoomState(roomName, 0);
         io.in(roomName).emit('playAgain');
     });
-    
+
     socket.on('disconnecting', () => {
-        socket.rooms.delete(socket.id);
-        const roomName = socket.rooms.keys().next().value;
-        const remainingUsers = leaveRoom(roomName, socket.id);
-        if (remainingUsers.length !== 0) {
-            io.in(roomName).emit('users', remainingUsers);
+        try {
+            socket.rooms.delete(socket.id);
+            const roomName = socket.rooms.keys().next().value;
+            const remainingUsers = leaveRoom(roomName, socket.id);
+            if (remainingUsers.length !== 0) {
+                io.in(roomName).emit('users', remainingUsers);
+            }
+        }
+        catch (e) {
+            console.log(e);
         }
     });
 });
